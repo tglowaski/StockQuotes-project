@@ -1,3 +1,5 @@
+package edu.cofc.stock;
+
 import android.util.Log;
 
 import org.json.JSONObject;
