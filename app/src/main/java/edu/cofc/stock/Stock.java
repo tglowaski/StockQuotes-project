@@ -1,6 +1,7 @@
-package edu.cofc.stock;
-
 import android.util.Log;
+
+import org.json.JSONObject;
+
 import java.net.*;
 import java.io.*;
 
@@ -9,11 +10,7 @@ public class Stock implements Serializable
 {
     private static final boolean DEBUG = true;
 
-    private static final String QUOTE_FORMAT = "&f=lcwn";
-    // format for symbols: last trade (with time), change & percent change,
-    // 52-week range, name
-
-    private static final String TAG_PREFIX = "edu.cofc.stock";
+    private static final String TAG_PREFIX = "stockquotes";
 
     private String symbol;
     private String lastTradeTime;
@@ -32,10 +29,9 @@ public class Stock implements Serializable
     }
 
 
-    public void load() throws MalformedURLException, IOException
-    {
-        URL url = new URL("http://finance.yahoo.com/d/quotes.csv?s=" + symbol
-                + QUOTE_FORMAT);
+    public void load() throws MalformedURLException, IOException {
+
+        URL url = new URL("https://api.iextrading.com/1.0/stock/" + symbol + "/book");
 
         if (DEBUG)
             Log.i(TAG_PREFIX + "Stock.load()", "url = " + url);
@@ -70,30 +66,23 @@ public class Stock implements Serializable
 
         if (line != null && line.length() > 0)
         {
-            // parse the line and remove quotes where necessary
-            String[] values = line.split(",");
-            change = values[1].substring(1, values[1].length() - 1);
-            range  = values[2].substring(1, values[2].length() - 1);
-            name   = values[3].substring(1, values[3].length() - 1);
+            // parse the JSON
+            JSONObject stock = JsonUtils.parseStockQuoteJson(line);
 
-            // Since real names can have commas, handle possible rest of name.
-            for (int i = 4;  i < values.length;  ++i)
-                name = name + ", " + values[i].substring(1, values[i].length() - 1);
+            try {
+                symbol = stock.getString("symbol");
+                lastTradeTime = stock.getString("latestTime");
+                lastTradePrice = stock.getString("latestPrice");
+                change = stock.getString("change");
+                range = stock.getString("week52Low") + " - " + stock.getString("week52High");
+                name = stock.getString("companyName");
+            } catch (Exception ex) {
+                Log.e(TAG_PREFIX, "Error retrieving data from JSON");
+            }
 
             if (DEBUG)
                 Log.i(TAG_PREFIX + "Stock.load()", "name = " + name);
-
-            String lastTrade = values[0];
-
-            // parse last trade time
-            int start = 1; // skip opening quote
-            int end = lastTrade.indexOf(" - ");
-            lastTradeTime = lastTrade.substring(start, end);
-
-            // parse last trade price
-            start = lastTrade.indexOf(">") + 1;
-            end = lastTrade.indexOf("<", start);
-            lastTradePrice = lastTrade.substring(start, end);
+            
         }
     }
 
@@ -103,7 +92,7 @@ public class Stock implements Serializable
      */
     public String getLastTradeTime()
     {
-        return lastTradeTime;
+        return  lastTradeTime;
     }
 
 
