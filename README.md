@@ -20,7 +20,7 @@ Examples of (but not limited to) WOW factors:
  
  When you are complete with your project, commit and push files to GitHub. VCS -> Commit Changes
  
- ***Note:*** Any issues you have with either the GitHub steps or Java/Android questions should be asked publically in Piazza. If you have a question, chances are someone else does also. If you see someone has posted a question and you know the answer, please chime in and answer.
+ ***Note:*** Any issues you have with either the GitHub steps or Java/Android questions should be asked publically in Slack. If you have a question, chances are someone else does also. If you see someone has posted a question and you know the answer, please chime in and answer.
  
  
 Example api call and JSON return:
